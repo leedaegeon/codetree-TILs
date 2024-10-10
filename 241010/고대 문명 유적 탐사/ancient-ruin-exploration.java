@@ -34,12 +34,17 @@ public class Main {
 		
 		
 		int[][] promiseArr = null;
+		Cord center = null;
+		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<k; i++) {
-			int maxValue = 0;
-			int selectDegree = 0;
-			
+			int maxValue = -1;
+			int selectDegree = -1;
+			int selectRow = 0;
+			int selectCol = 0;
+//			System.out.println((i+1) + "번째\n" + "원래 맵 ");
+//			print(arr);
+			for(int x=1; x<4; x++) {
 			for(int y=1; y<4; y++) {
-				for(int x=1; x<4; x++) {
 					int[][] rotated = deepCopy(arr);
 					for(int r=0; r<3; r++) {
 						rotated = rotate90(rotated, new Cord(y,x));
@@ -48,41 +53,66 @@ public class Main {
 							maxValue = value;
 							promiseArr = deepCopy(rotated);
 							selectDegree = r;
+							center = new Cord(y,x);
+							selectRow = y;
+							selectCol = x;
 						}else if(maxValue == value && selectDegree > r) {
 							promiseArr = deepCopy(rotated);
 							selectDegree = r;
+							center = new Cord(y,x);
+						}else if(maxValue == value && selectDegree == r && selectRow > y) {
+							promiseArr = deepCopy(rotated);
+							selectRow = y;
+							center = new Cord(y,x);
+						}else if(maxValue == value && selectDegree == r && selectRow == y && selectCol > x) {
+							promiseArr = deepCopy(rotated);
+							selectRow = x;
+							center = new Cord(y,x);
 						}
 					}
 				}
 			}
-			if(maxValue!=0) {
+			
+//			System.out.println("1차 탐색 값: "+maxValue);
+//			System.out.println("회전 중심: " + center);
+//			System.out.println("회전각: " + selectDegree);
+//			print(promiseArr);
+//			System.out.println("\n=======================");
+			
+			while(true) {
+				boolean[][] findZero = new boolean[5][5];
+				List<Cord> zeros = findConnect(promiseArr, findZero);
 				
-				while(true) {
-					boolean[][] findZero = new boolean[5][5];
-					List<Cord> zeros = findConnect(promiseArr, findZero);
-					Collections.sort(zeros);
-					fillNewNum(wall, zeros, promiseArr);
-					int newValue = 0;
-					newValue = getValue(promiseArr);
-					if(newValue == 0) {
-						break;
-					}
-					maxValue += newValue;
+				Collections.sort(zeros);
+//				System.out.println("값이 바뀔 애들"+ zeros);
+//				System.out.println("벽에 적힌 숫자: " + wall);
+				fillNewNum(wall, zeros, promiseArr);
+				int newValue = 0;
+//				print(promiseArr);
+				newValue = getValue(promiseArr);
+//				System.out.print("연쇄 탐색 값: " + newValue);
+//				System.out.println("\n=======================");
+				if(newValue == 0) {
+					break;
 				}
-				
-
-			}else {
+				maxValue += newValue;
+			}
+			
+			arr = promiseArr;
+			if(maxValue == 0) {
 				break;
 			}
-			arr = promiseArr;
-			System.out.print(maxValue + " ");
+			sb.append(maxValue+" ");
 		}
+		System.out.println(sb.delete(sb.length()-1, sb.length()));
 	}
 	private static void fillNewNum(Queue<Integer> wall, List<Cord> zeros, int[][] promiseArr) {
 		for(int i=0; i<zeros.size(); i++) {
+//			System.out.print(zeros.get(i) +" ");
 			int num = wall.poll();
 			promiseArr[zeros.get(i).y][zeros.get(i).x] = num;
 		}
+//		System.out.println("\n-------------------------");
 		return;
 	}
 	public static void print(int[][] arr) {
@@ -93,17 +123,18 @@ public class Main {
 	
 	public static List<Cord> findConnect(int[][] arr, boolean[][] visited) {
 		List<Cord> ret = new ArrayList<>();
+		
 		for(int i=0; i<arr.length; i++) {
 			for(int j=0; j<arr[0].length; j++) {
-				int cnt = 0;
 				List<Cord> zeros = new ArrayList<>();
+				
 				if(!visited[i][j]) {
-					cnt++;
 					Cord cord = new Cord(i, j);
 					Queue<Cord> q = new ArrayDeque<>();
 					q.offer(cord);
 					visited[cord.y][cord.x] = true;
 					zeros.add(cord);
+					
 					while(!q.isEmpty()) {
 						Cord now = q.poll();
 						for(int dir=0; dir<4; dir++) {
@@ -115,12 +146,11 @@ public class Main {
 							visited[nexty][nextx] = true;
 							Cord next = new Cord(nexty, nextx);
 							q.add(next);
-							zeros.add(next);
-							cnt++;
+							zeros.add(next);							
 						}
 					}
 				}
-				if(cnt >= 3) {
+				if(zeros.size() >= 3) {
 					for(Cord c: zeros) {
 						ret.add(c);
 					}
