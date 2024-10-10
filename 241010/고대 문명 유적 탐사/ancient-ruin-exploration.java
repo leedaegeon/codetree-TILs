@@ -35,7 +35,6 @@ public class Main {
 		
 		int[][] promiseArr = null;
 		Cord center = null;
-		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<k; i++) {
 			int maxValue = -1;
 			int selectDegree = -1;
@@ -60,14 +59,6 @@ public class Main {
 							promiseArr = deepCopy(rotated);
 							selectDegree = r;
 							center = new Cord(y,x);
-						}else if(maxValue == value && selectDegree == r && selectRow > y) {
-							promiseArr = deepCopy(rotated);
-							selectRow = y;
-							center = new Cord(y,x);
-						}else if(maxValue == value && selectDegree == r && selectRow == y && selectCol > x) {
-							promiseArr = deepCopy(rotated);
-							selectRow = x;
-							center = new Cord(y,x);
 						}
 					}
 				}
@@ -78,35 +69,35 @@ public class Main {
 //			System.out.println("회전각: " + selectDegree);
 //			print(promiseArr);
 //			System.out.println("\n=======================");
-			
-			while(true) {
-				boolean[][] findZero = new boolean[5][5];
-				List<Cord> zeros = findConnect(promiseArr, findZero);
-				
-				Collections.sort(zeros);
-//				System.out.println("값이 바뀔 애들"+ zeros);
-//				System.out.println("벽에 적힌 숫자: " + wall);
-				fillNewNum(wall, zeros, promiseArr);
-				int newValue = 0;
-//				print(promiseArr);
-				newValue = getValue(promiseArr);
-//				System.out.print("연쇄 탐색 값: " + newValue);
-//				System.out.println("\n=======================");
-				if(newValue == 0) {
-					break;
+			if(promiseArr!=null) {
+				while(true) {
+					boolean[][] findZero = new boolean[5][5];
+					List<Cord> zeros = findConnect(promiseArr, findZero);
+					
+					Collections.sort(zeros);
+		//				System.out.println("값이 바뀔 애들"+ zeros);
+		//				System.out.println("벽에 적힌 숫자: " + wall);
+					fillNewNum(wall, zeros, promiseArr);
+					int newValue = 0;
+		//				print(promiseArr);
+					newValue = getValue(promiseArr);
+		//				System.out.print("연쇄 탐색 값: " + newValue);
+		//				System.out.println("\n=======================");
+					if(newValue == 0) {
+						break;
+					}
+					maxValue += newValue;
 				}
-				maxValue += newValue;
+				arr = promiseArr;
 			}
 			
-			arr = promiseArr;
 			if(maxValue == 0) {
 				break;
 			}
-			sb.append(maxValue+" ");
+			System.out.print(maxValue + " ");
+			
 		}
-		if(sb.length()>1) {
-			System.out.println(sb.delete(sb.length()-1, sb.length()));
-		}
+		
 	}
 	private static void fillNewNum(Queue<Integer> wall, List<Cord> zeros, int[][] promiseArr) {
 		for(int i=0; i<zeros.size(); i++) {
