@@ -104,7 +104,9 @@ public class Main {
 			}
 			sb.append(maxValue+" ");
 		}
-		System.out.println(sb.delete(sb.length()-1, sb.length()));
+		if(sb.length()>1) {
+			System.out.println(sb.delete(sb.length()-1, sb.length()));
+		}
 	}
 	private static void fillNewNum(Queue<Integer> wall, List<Cord> zeros, int[][] promiseArr) {
 		for(int i=0; i<zeros.size(); i++) {
