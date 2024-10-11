@@ -84,9 +84,12 @@ public class Main {
 				removed[i] = true;
 			}
 		}
+		int idx = 0;
 		for(int i=0; i<removed.length; i++) {
 			if(removed[i]) {
-				ls.remove(i);
+				ls.remove(idx);
+			}else {
+				idx++;
 			}
 		}
 		if(ls.size() == 0) {
