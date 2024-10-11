@@ -71,7 +71,6 @@ public class Main {
 				if(nowDist > nextDist) {
 					nowDist = nextDist;
 					dir = d;
-					break;
 				}
 			}
 			if(dir != -1) {
@@ -80,7 +79,6 @@ public class Main {
 				moveDist++;
 			}
 			if(exit.equals(ls.get(i))) {
-//				ls.remove(i);
 				removed[i] = true;
 			}
 		}
@@ -96,93 +94,54 @@ public class Main {
 			return;
 		}
 		int minDist = 21;
-		PriorityQueue<Cord> pq = new PriorityQueue<>((o1, o2)->{
-			if(o1.y == o2.y) {
-				return o1.x - o2.x; 
-			}
-			return o1.y - o2.y;
-			 
-		});
 		for(int i=0; i<ls.size(); i++) {
-			int testDist = getDist(ls.get(i), exit);
-			if(minDist > testDist) {
-				pq.clear();
-				pq.offer(ls.get(i));
+			int testDistY = Math.abs(exit.y - ls.get(i).y);
+			int testDistX = Math.abs(exit.x - ls.get(i).x);
+			int testDist = Math.max(testDistY, testDistX);
+			if(minDist > testDist) {		
 				minDist = testDist;
-			}else if(minDist == testDist) {
-				pq.offer(ls.get(i));
-
 			}
 		}
-		Cord target = pq.poll();
-		int yDiff = Math.abs(target.y - exit.y);
-		int xDiff = Math.abs(target.x - exit.x);
+//		System.out.println(minDist);
+		int[] squareInfo = getSqureStart(minDist);
+		
+		
 		int y, x, l;
-		y = 0;
-		x = 0;
-		l = 0;
-//		System.out.println("다음 출구 좌표 결정의 타겟: " + target);
-		if(yDiff == xDiff) {
-			pq = new PriorityQueue<>((o1, o2)->{
-				if(o1.y == o2.y) {
-					return o1.x - o2.x; 
-				}
-				return o1.y - o2.y;
-				 
-			});
-			pq.offer(target);
-			pq.offer(exit);
-			Cord leftTop = pq.poll();
-			y = leftTop.y;
-			x = leftTop.x;
-			l = yDiff;
-		}else if(exit.y == target.y) {
-			l = xDiff;
-			x = Math.min(exit.x, target.x);
-			y = exit.y - l;
-			while(y < 1) {
-				y++;
-			}
-		}else if(exit.x == target.x) {
-			l = yDiff;
-			y = Math.min(exit.y, target.y);
-			x = exit.x - l;			
-			while(x< 1) {
-				x++;
-			}
-		}
-		else {
-			l = Math.max(xDiff, yDiff);
-			
-			if(exit.y > target.y && exit.x > target.x) { // e기준 t가 1사분면
-				y = exit.y - l;
-				x = exit.x - l;
-				while(y<1) {
-					y++;
-				}
-				while(x < 1) {
-					x++;
-				}
-			}else if(exit.y > target.y && exit.x < target.x) { // e기준 t가 2사분면
-				y = exit.y - l;
-				x = exit.x;
-				while(y < 1) {
-					y++;
-				}
-				
-			}else if(exit.y < target.y && exit.x > target.x) { // e 기준 t가 3사분면(왼쪽 아래)
-				y = exit.y;
-				x = exit.x - l;
-				while(x < 1) {
-					x++;
-				}
-			}else if(exit.y < target.y && exit.x < target.x) {
-				y = exit.y;
-				x = exit.x;
-			}
-		}
+		y = squareInfo[0];
+		x = squareInfo[1];
+		l = squareInfo[2];
+
 //		System.out.println(y + ", " + x + " 길이: " + l);
 		field = rotate(y, x, l);
+	}
+	public static int[] getSqureStart(int minDist) {
+		
+		for(int i=1; i<n+1; i++) {
+			for(int j=1; j<n+1; j++) {
+				boolean eFlag = false;
+				boolean pFlag = false;
+				for(int k=i; k <= i+minDist; k++) {
+					for(int l = j; l <= j+minDist; l++) {
+						Cord test = new Cord(k, l);
+						if(exit.equals(test)) {
+							eFlag = true;
+						}else {
+							for(int h=0; h<ls.size(); h++) {
+								if(ls.get(h).equals(test)) {
+									pFlag = true;
+									break;
+								}
+							}
+						}
+						if(eFlag && pFlag) {
+							return new int[] {i, j, minDist};
+						}
+						
+					}
+				}
+			}
+		}
+		return null;
 	}
 	public static int getDist(Cord c, Cord t) {
 		return Math.abs(c.y-t.y) + Math.abs(c.x - t.x);
