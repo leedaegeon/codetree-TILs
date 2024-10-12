@@ -30,8 +30,10 @@ public class Main {
 				}
 			}
 		}
-		minPath = m+n+1;
+		
 		for(int turn=1; turn<=k; turn++) {
+			minPath = Integer.MAX_VALUE;
+
 			visited = new HashSet<>();
 //			System.out.println("====================");
 //			System.out.println("공격전");
