@@ -8,6 +8,9 @@ public class Main {
 	static Set<Unit> visited;
 	static final int[] dy = {0, 1, 0, -1};
 	static final int[] dx = {1, 0, -1, 0};
+//	static final int[] dy = {-1, 0, 1, 0};
+//	static final int[] dx = {0, -1, 0, 1};
+//	
 	static int minPath;
 	static List<Unit> realPath;
 	static final int[] dy2 = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -30,7 +33,7 @@ public class Main {
 				}
 			}
 		}
-//		long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		for(int turn=1; turn<=k; turn++) {
 			minPath = Integer.MAX_VALUE;
 			visited = new HashSet<>();
@@ -73,16 +76,17 @@ public class Main {
 		}
 		System.out.println(answer);
 //		System.out.println((System.currentTimeMillis() - start));
+		
 	}
 	public static void attack(int fromIdx, int targetIdx, int turn) {
 		Unit from = units.get(fromIdx);
 		Unit target = units.get(targetIdx);
 //		from 공격력 업 해줘야함
 		from.e += n+m;
-		realPath = null;
+		realPath = lazerAttack(from, target);
 //		System.out.println("공격자: " +from);
 //		System.out.println("피해자: " + target);
-		lazerAttack(new ArrayList<>(), from, from, target, new HashSet<>());
+
 		if(realPath != null) {
 //			System.out.println("레이저 공격");
 //			System.out.println(target);
@@ -150,56 +154,102 @@ public class Main {
 
 		return;
 	}
-	
-	public static void lazerAttack(List<Unit> path, Unit now, Unit from, Unit target, Set<Unit> searchVisited) {
+	public static List<Unit> lazerAttack(Unit from, Unit target) {
 
-		if(path.size() > minPath) {
-			return;
-		}
-//		공격 대상자는 공격자 공격력만큼 피해
-//		경로에 있는 포탑은 공격자 공격력 절반만큼 피해
-//		공격자 리스트에 해당 공격자의 턴 증가
-//		path에는 now(공격 대상자)가 없는 상황
-		if(target.equals(now) && minPath > path.size()) {
-			
-			minPath = path.size();
-//				System.out.println(path);
-			realPath = new ArrayList<>(path);
-			
-			return;
-		}
-		searchVisited.add(now);
-		path.add(now);
-		for(int i=0; i<4; i++) {
-			int nexty = now.y + dy[i];
-			int nextx = now.x + dx[i];
-			if(nexty < 0) {
-				nexty = n-1;
-			}
-			if(nexty >= n) {
-				nexty %= n;
-			}
-			if(nextx < 0) {
-				nextx = m-1;
-			}
-			if(nextx >= m) {
-				nextx %= m;
-			}
-			if(field[nexty][nextx] == 0) {
-				continue;
-			}
-			Unit next = new Unit(nexty, nextx);
-			if(searchVisited.contains(next)) {
-				continue;
-			}
-			lazerAttack(path, next, from, target, searchVisited);
-			
-		}
-		path.remove(now);
-		searchVisited.remove(now);
+		Queue<List<Unit>> q = new ArrayDeque<>();
+		Set<Unit> searchVisited = new HashSet<>();
+		q.offer(new ArrayList<>(Arrays.asList(from)));
+//		System.out.println(q.peek());
+		searchVisited.add(from);
 		
-		return ;
+		while(!q.isEmpty()) {
+			List<Unit> path = q.poll();
+			Unit now = path.get(path.size()-1);
+			if(now.equals(target)) {
+//				System.out.println("레이저 공격 대상 찾음");
+				return path;
+			}
+			for(int i=0; i<4; i++) {
+				int nexty = now.y + dy[i];
+				int nextx = now.x + dx[i];
+				if(nexty < 0) {
+					nexty = n-1;
+				}
+				if(nexty >= n) {
+					nexty %= n;
+				}
+				if(nextx < 0) {
+					nextx = m-1;
+				}
+				if(nextx >= m) {
+					nextx %= m;
+				}
+				if(field[nexty][nextx] == 0) {
+					continue;
+				}
+				Unit next = new Unit(nexty, nextx);
+				if(searchVisited.contains(next)) {
+					continue;
+				}
+				
+				List<Unit> newPath = new ArrayList<>(path);
+				newPath.add(next);
+				q.add(newPath);
+				searchVisited.add(next);
+			}
+		}
+		return null;
 	}
+	
+//	public static void lazerAttack(List<Unit> path, Unit now, Unit from, Unit target, Set<Unit> searchVisited) {
+//
+//		if(path.size() > minPath) {
+//			return;
+//		}
+////		공격 대상자는 공격자 공격력만큼 피해
+////		경로에 있는 포탑은 공격자 공격력 절반만큼 피해
+////		공격자 리스트에 해당 공격자의 턴 증가
+////		path에는 now(공격 대상자)가 없는 상황
+//		if(target.equals(now) && minPath > path.size()) {
+//			
+//			minPath = path.size();
+////				System.out.println(path);
+//			realPath = new ArrayList<>(path);
+//			
+//			return;
+//		}
+//		searchVisited.add(now);
+//		path.add(now);
+//		for(int i=0; i<4; i++) {
+//			int nexty = now.y + dy[i];
+//			int nextx = now.x + dx[i];
+//			if(nexty < 0) {
+//				nexty = n-1;
+//			}
+//			if(nexty >= n) {
+//				nexty %= n;
+//			}
+//			if(nextx < 0) {
+//				nextx = m-1;
+//			}
+//			if(nextx >= m) {
+//				nextx %= m;
+//			}
+//			if(field[nexty][nextx] == 0) {
+//				continue;
+//			}
+//			Unit next = new Unit(nexty, nextx);
+//			if(searchVisited.contains(next)) {
+//				continue;
+//			}
+//			lazerAttack(path, next, from, target, searchVisited);
+//			
+//		}
+//		path.remove(now);
+//		searchVisited.remove(now);
+//		
+//		return ;
+//	}
 //	포탄공격
 	public static void bombAttack(Unit from, Unit target) {
 		if(field[target.y][target.x] < from.e ) {
@@ -248,7 +298,6 @@ public class Main {
 	}
 //	공격대상자 인덱스 얻어오기, 공다운은 여기서x
 	public static int selectTargetIdx() {
-		Collections.sort(units);
 		return units.size()-1;
 	}
 	static class Unit implements Comparable<Unit>{
