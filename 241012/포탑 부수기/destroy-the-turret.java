@@ -30,10 +30,9 @@ public class Main {
 				}
 			}
 		}
-		
+//		long start = System.currentTimeMillis();
 		for(int turn=1; turn<=k; turn++) {
 			minPath = Integer.MAX_VALUE;
-
 			visited = new HashSet<>();
 //			System.out.println("====================");
 //			System.out.println("공격전");
@@ -73,6 +72,7 @@ public class Main {
 //			System.out.println();
 		}
 		System.out.println(answer);
+//		System.out.println((System.currentTimeMillis() - start));
 	}
 	public static void attack(int fromIdx, int targetIdx, int turn) {
 		Unit from = units.get(fromIdx);
@@ -121,7 +121,6 @@ public class Main {
 //		System.out.println("공격과 관련된 포탑: " + visited);
 		for(Unit v: visited) {
 			if(field[v.y][v.x] == 0) {
-				
 				units.remove(v);
 			}else {
 				alive.add(v);
@@ -154,18 +153,20 @@ public class Main {
 	
 	public static void lazerAttack(List<Unit> path, Unit now, Unit from, Unit target, Set<Unit> searchVisited) {
 
-		
+		if(path.size() > minPath) {
+			return;
+		}
 //		공격 대상자는 공격자 공격력만큼 피해
 //		경로에 있는 포탑은 공격자 공격력 절반만큼 피해
 //		공격자 리스트에 해당 공격자의 턴 증가
 //		path에는 now(공격 대상자)가 없는 상황
-		if(target.equals(now)) {
-			if(minPath > path.size()) {
-				minPath = path.size();
+		if(target.equals(now) && minPath > path.size()) {
+			
+			minPath = path.size();
 //				System.out.println(path);
-				realPath = new ArrayList<>(path);
-			}
-			return ;
+			realPath = new ArrayList<>(path);
+			
+			return;
 		}
 		searchVisited.add(now);
 		path.add(now);
@@ -316,7 +317,7 @@ public class Main {
 
 		@Override
 		public String toString() {
-			return "[행:" + y + ", 열:" + x + ", 턴:" + t + ", 공격력:" + e + "]";
+			return "[행:" + y + ", 열:" + x + ", 턴:" + t + ", 공격력:" + e + "]\n";
 		}
 		
 	}
