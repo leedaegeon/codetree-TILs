@@ -116,8 +116,10 @@ public class Main {
 //		포탑 부서짐 로직
 //		공격 불능인 포탑 삭제
 		Set<Unit> alive = new HashSet<>();
+//		System.out.println("공격과 관련된 포탑: " + visited);
 		for(Unit v: visited) {
-			if(field[v.y][v.x] == 0) {		
+			if(field[v.y][v.x] == 0) {
+				
 				units.remove(v);
 			}else {
 				alive.add(v);
@@ -195,9 +197,13 @@ public class Main {
 		
 		return ;
 	}
+//	포탄공격
 	public static void bombAttack(Unit from, Unit target) {
-		
-		field[target.y][target.x] -= from.e;
+		if(field[target.y][target.x] < from.e ) {
+			field[target.y][target.x] = 0;
+		}else {
+			field[target.y][target.x] -= from.e;
+		}
 		visited.add(target);
 		int half = Math.floorDiv(from.e, 2);
 		for(int i=0; i<8; i++) {
